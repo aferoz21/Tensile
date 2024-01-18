@@ -367,13 +367,22 @@ namespace Tensile
                 rsmi_frequencies_t freq;
 
                 auto status = rsmi_dev_gpu_clk_freq_get(m_smiDeviceIndex, m_clockMetrics[i], &freq);
-                if(status != RSMI_STATUS_SUCCESS || freq.current > RSMI_MAX_NUM_FREQUENCIES)
+                if(status != RSMI_STATUS_SUCCESS)
                 {
                     m_clockValues[i] = std::numeric_limits<uint64_t>::max();
+					if (i == 0) 
+					{
+                        m_freqValues.push_back(std::numeric_limits<uint64_t>::max());
+					}
                 }
                 else
                 {
                     m_clockValues[i] += freq.frequency[freq.current];
+					if (i == 0) 
+					{
+                        m_freqValues.push_back((freq.frequency[freq.current]/1000000));
+						//std::cout << "Frequency Value " << (freq.frequency[freq.current]/1000000) << "\n";
+					}
                 }
             }
 
@@ -403,7 +412,7 @@ namespace Tensile
             {
                 if(!m_hasInvalidGpuMetricStatus)
                 {
-                    m_freqValues.push_back(gpuMetrics.average_gfxclk_frequency);
+                    //m_freqValues.push_back(gpuMetrics.average_gfxclk_frequency);
                     m_powerValues.push_back(gpuMetrics.average_socket_power);
                     m_tempHotspotValues.push_back(gpuMetrics.temperature_hotspot);
                 }
