@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (C) 2020-2022 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (C) 2020-2024 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -159,7 +159,11 @@ class SignatureDefault(Signature):
         kStr += writer.comment3("Optimizations and Config:")
         kStr += writer.comment1("ThreadTile= %u x %u" % (kernel["ThreadTile0"], kernel["ThreadTile1"]))
         kStr += writer.comment1("SubGroup= %u x %u" % (kernel["SubGroup0"], kernel["SubGroup1"]))
-        kStr += writer.comment1("VectorWidth=%u" % (kernel["VectorWidth"]))
+        if kernel["EnableMatrixInstruction"]:
+          kStr += writer.comment1("VectorWidthA=%u" % (kernel["VectorWidthA"]))
+          kStr += writer.comment1("VectorWidthB=%u" % (kernel["VectorWidthB"]))
+        else:
+          kStr += writer.comment1("VectorWidth=%u" % (kernel["VectorWidth"]))
         glvw = kernel["GlobalLoadVectorWidthA"]
         glvwAStr = "GlobalLoadVectorWidthA=%f"%glvw if glvw < 1 else "GlobalLoadVectorWidthA=%u"%glvw
         glvw = kernel["GlobalLoadVectorWidthB"]
@@ -271,6 +275,8 @@ class SignatureDefault(Signature):
         if kernel["StreamK"]:
             kStr += self.addArgument("MagicNumberProblemNumGroupTiles0",   '4', offset,    "by_value",        "u32"); offset += 4
             kStr += self.addArgument("MagicShiftProblemNumGroupTiles0",    '4', offset,    "by_value",        "u32"); offset += 4
+            kStr += self.addArgument("MagicNumProblemNumGroupTiles0By1",   '4', offset,    "by_value",        "u32"); offset += 4
+            kStr += self.addArgument("MagicShiftProblemNumGroupTiles0By1", '4', offset,    "by_value",        "u32"); offset += 4
 
         if kernel["PersistentKernel"]:
             kStr += self.addArgument("MagicNumberProblemNumGroupTiles0",   '4', offset,    "by_value",        "u32"); offset += 4
@@ -286,7 +292,7 @@ class SignatureDefault(Signature):
             kStr += self.addArgument("MagicNumberItersPerTile", '4', offset,"by_value", "u32"); offset += 4
             kStr += self.addArgument("MagicShiftItersPerTile",  '4', offset,"by_value", "u32"); offset += 4
             kStr += self.addArgument("TotalIters",              '4', offset,"by_value", "u32"); offset += 4
-            kStr += self.addArgument("SKItersPerWG",              '4', offset,"by_value", "u32"); offset += 4
+            kStr += self.addArgument("SKItersPerWG",            '4', offset,"by_value", "u32"); offset += 4
             if kernel["StreamK"] == 3: # Two-tile SK
                 kStr += self.addArgument("skGrid",              '4', offset,"by_value", "u32"); offset += 4
                 kStr += self.addArgument("skTiles",             '4', offset,"by_value", "u32"); offset += 4
