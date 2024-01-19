@@ -381,7 +381,6 @@ namespace Tensile
 					if (i == 0) 
 					{
                         m_freqValues.push_back((freq.frequency[freq.current]/1000000));
-						//std::cout << "Frequency Value " << (freq.frequency[freq.current]/1000000) << "\n";
 					}
                 }
             }
@@ -496,7 +495,7 @@ namespace Tensile
         void HardwareMonitor::sleepIfNecessary()
         {
             auto now = clock::now();
-
+			
             if(now < m_nextCollection)
             {
                 std::this_thread::sleep_until(m_nextCollection);
@@ -506,8 +505,9 @@ namespace Tensile
             {
                 m_lastCollection = now;
             }
-
+			
             m_nextCollection = m_lastCollection + m_minPeriod;
+            //std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
 
         void HardwareMonitor::runLoop()
